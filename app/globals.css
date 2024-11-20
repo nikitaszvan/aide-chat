@@ -19,3 +19,28 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes terminal-loading {
+  0%, 100% { background-color: #181818; } /* gray-700 */
+  50% { background-color: #ffffff; }
+}
+
+.animate-terminal-loading-1 {
+  animation: terminal-loading 2s infinite;
+  animation-delay: 0s;
+}
+
+.animate-terminal-loading-2 {
+  animation: terminal-loading 2s infinite;
+  animation-delay: 0.5s;
+}
+
+.animate-terminal-loading-3 {
+  animation: terminal-loading 2s infinite;
+  animation-delay: 1s;
+}
+
+.animate-terminal-loading-4 {
+  animation: terminal-loading 2s infinite;
+  animation-delay: 1.5s;
+}
