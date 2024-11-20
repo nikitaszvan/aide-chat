@@ -54,7 +54,7 @@ nikitavan@Nikitas-MacBook-Pro aide-chat % npm run dev
 `
 
 export default function Component() {
-  const [terminalContent, setTerminalContent] = useState(placeholderText);
+  const [terminalContent, setTerminalContent] = useState([placeholderText]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
 
@@ -62,14 +62,18 @@ export default function Component() {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
     }
-  }, [terminalContent, inputCommand, isLoading]);
+  }, [terminalContent]);
+
+  const handleCommandSubmit = (command: string, response: string) => {
+    setTerminalContent((prev) => [...prev, command]);
+    setTerminalContent((prev) => [...prev, response]);
+  };
 
   
 
   return (
     <div 
       className="w-full h-[600px] bg-[#181818] text-white font-medium font-mono text-sm rounded-lg overflow-hidden flex flex-col"
-      onClick={handleTerminalClick}
     >
       <div className="bg-[#323233] px-4 py-2 text-[#cccccc] flex items-center justify-between">
         <span>Terminal</span>
@@ -79,14 +83,13 @@ export default function Component() {
           <button className="w-3 h-3 rounded-full bg-[#27c93f]" aria-label="Maximize terminal"></button>
         </div>
       </div>
-      <div className="flex-grow p-4 relative overflow-y-scroll" ref={scrollAreaRef}>
-        <pre className="whitespace-pre font-mono break-all">{terminalContent}</pre>
-        <form onSubmit={handleInputSubmit} className="inline">
-        <span className="whitespace-pre">nikitavan@Nikitas-MacBook-Pro aide-chat % </span>
+      <div className="flex-grow p-4 relative overflow-y-scroll break-words" ref={scrollAreaRef}>
+      {terminalContent.map((content, index) => 
+        <pre key={index} className="whitespace-pre font-mono break-all">{content}</pre>
+      )}
           <CustomInput
-            className="bg-transparent outline-none caret-transparent relative z-10"
+            onCommandSubmit={handleCommandSubmit}
           />
-        </form>
       </div>
     </div>
   )

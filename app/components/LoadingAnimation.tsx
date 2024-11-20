@@ -1,10 +1,12 @@
 
-import { FC } from 'react';
+import { FC, useRef } from 'react';
 
 const LoadingAnimation: FC<{className?: string}> = ({className})  => {
+
+
   return (
     <div className={`flex ${className}`}>
-      <div 
+      <div
         className="grid grid-cols-2 gap-1 relative"
         role="status"
         aria-label="Loading"

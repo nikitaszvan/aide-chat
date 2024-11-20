@@ -1,42 +1,42 @@
 import { useState, useEffect, useRef, FC, FormEvent, KeyboardEvent, ChangeEvent } from "react";
 import LoadingAnimation from '../components/LoadingAnimation';
 
-const CustomInput: FC<{className?: string}> = ({className}) => {
-  const [caretPosition, setCaretPosition] = useState({ left: 0, top: 0 });
+type InputProps = {
+  onCommandSubmit: (command: string, response: string) => void;
+  className?: string;
+};
+
+const CustomInput: FC<InputProps> = ({ onCommandSubmit, className }: InputProps) => {
+  const [caretPosition, setCaretPosition] = useState({left: 0, top: 0});
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [history, setHistory] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
   const [inputCommand, setInputCommand] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
 
-  const handleTerminalClick = () => {
-      inputRef.current?.focus()
-  }
+
 
   const updateCaretPosition = () => {
     if (inputRef.current) {
       const input = inputRef.current;
       const { selectionStart } = input;
 
-      // Create a range to find the caret position
       const rect = input.getBoundingClientRect();
       const inputStyle = window.getComputedStyle(input);
 
-      // Create a dummy span to measure the caret's position
       const dummySpan = document.createElement("span");
       dummySpan.style.position = "absolute";
       dummySpan.style.visibility = "hidden";
       dummySpan.style.whiteSpace = "pre";
 
-      // Apply input's styles to dummy span for accurate measurement
       dummySpan.style.font = inputStyle.font;
       dummySpan.textContent = input.value.slice(0, selectionStart || 0);
 
       document.body.appendChild(dummySpan);
       const spanRect = dummySpan.getBoundingClientRect();
       setCaretPosition({
-        left: rect.left + spanRect.width + parseInt(inputStyle.paddingLeft),
-        top: rect.top + parseInt(inputStyle.paddingTop),
+        left: rect.left + spanRect.width - 16,
+        top: spanRect.height ? spanRect.height - 20 : 0,
       });
 
       document.body.removeChild(dummySpan);
@@ -106,7 +106,6 @@ const CustomInput: FC<{className?: string}> = ({className}) => {
       const [command, ...args] = inputCommand.trim().split(' ');
 
       if (command !== 'als') {
-        setTerminalContent(prevContent => prevContent + `command not found` + '\n');
         setInputCommand('');
         return;
       }
@@ -155,8 +154,8 @@ const CustomInput: FC<{className?: string}> = ({className}) => {
                 ${revisedCode}
             `;
 
-            setTerminalContent(prevContent => prevContent + `nikitavan@Nikitas-MacBook-Pro aide-chat % ` + inputCommand.trim() + '\n');
-            setTerminalContent(prevContent => prevContent + `nikitavan@Nikitas-MacBook-Pro aide-chat % ` + formattedResponse + '\n');
+            onCommandSubmit(inputCommand.trim(), formattedResponse);
+            //setTerminalContent(prevContent => prevContent + `nikitavan@Nikitas-MacBook-Pro aide-chat % ` + formattedResponse + '\n');
         }
         
       } catch (error) {
@@ -173,48 +172,55 @@ const CustomInput: FC<{className?: string}> = ({className}) => {
     setInputCommand(e.target.value)
   }
 
-  const handleTerminalClick = () => {
-    inputRef.current?.focus()
-  }
-
   useEffect(() => {
+    updateCaretPosition();
+
     const handleInput = updateCaretPosition;
+    if (inputRef.current) {
+      const inputElement = inputRef.current;
+      inputElement.addEventListener("focus", handleInput);
+    }
 
     document.addEventListener("input", handleInput);
     document.addEventListener("click", handleInput);
 
     return () => {
+      if (inputRef.current) {
+        const inputElement = inputRef.current;
+        inputElement.removeEventListener("focus", handleInput);
+      }
+
       document.removeEventListener("input", handleInput);
       document.removeEventListener("click", handleInput);
     };
   }, []);
 
   return (
-    <>
+    <form onSubmit={handleInputSubmit} className="flex relative" onClick={() => inputRef.current?.focus()}>
+      <span className="whitespace-pre">nikitavan@Nikitas-MacBook-Pro aide-chat % </span>
       <input
         ref={inputRef}
-        className={`text-lg p-2 border border-gray-300 w-full caret-transparent ${className}`}
+        className={`caret-transparent w-fit flex flex-grow bg-transparent outline-none relative`}
         onClick={updateCaretPosition}
         onKeyUp={updateCaretPosition}
         onFocus={updateCaretPosition}
         type="text"
-            spellCheck="false"
+        spellCheck="false"
         value={inputCommand}
         onChange={handleInputChange}
-        style={{ width: `${inputCommand.length}ch` }}
         aria-label="Terminal input"
         onKeyDown={handleKeyDown}
+        autoFocus
       />
       <div
-        className="absolute w-[2px] h-[1.2em] bg-red-500 pointer-events-none animate-blink"
+        className={`absolute w-[1ch] h-[2ch] bg-white pointer-events-none opacity-0 ${caretPosition.left && `opacity-100`}`}
         style={{
-          left: `${caretPosition.left}px`,
-          top: `${caretPosition.top}px`,
+          left: caretPosition.left+`px`,
+          top: caretPosition.top+`px`
         }}
       />
-        {!isLoading && <span className="absolute">▊</span>}
         {isLoading && <LoadingAnimation className="my-4"/>}
-    </>
+    </form>
   );
 };
 

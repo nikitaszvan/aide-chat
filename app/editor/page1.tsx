@@ -8,7 +8,7 @@ const Editor = () => {
   const [history, setHistory] = useState<string[]>([]);
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const [openAIResponse, setOpenAIResponse] = useState<string | null>(null); // Store OpenAI response
+  const [openAIResponse, setOpenAIResponse] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
 
@@ -30,7 +30,6 @@ const Editor = () => {
 
         const data = await response.json();
         if (response.ok) {
-          console.log('OpenAI Response:', data.message);
           setOpenAIResponse(data.message);
         } else {
           console.error('Error from OpenAI API:', data.error);
