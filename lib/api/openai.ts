@@ -11,7 +11,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const { prompt } = req.body;
-
   if (!prompt || typeof prompt !== 'string') {
     return res.status(400).json({ error: 'Invalid prompt' });
   }

@@ -1,7 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react';
-import CustomInput from '../components/CustomInput';
+import CustomInput from '../../components/CustomInput/CustomInput.component';
+import { 
+  StyledTerminalContainer,
+  TitleBar,
+  WindowControlsContainer,
+  TerminalWindow
+ } from './pages.styles';
 
 const placeholderText = `nikitavan@Nikitas-MacBook-Pro aide-chat % npm run dev
 
@@ -52,10 +58,14 @@ nikitavan@Nikitas-MacBook-Pro aide-chat % npm run dev
  ✓ Compiled /api/openai in 30ms
  POST /api/openai 200 in 992ms
 `
+type CustomInputRef = HTMLTextAreaElement & {
+  focus: () => void;
+};
 
-export default function Component() {
+const Editor = () => {
   const [terminalContent, setTerminalContent] = useState([placeholderText]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<CustomInputRef>(null);
 
 
   useEffect(() => {
@@ -65,32 +75,37 @@ export default function Component() {
   }, [terminalContent]);
 
   const handleCommandSubmit = (command: string, response: string) => {
-    setTerminalContent((prev) => [...prev, command]);
+    setTerminalContent((prev) => [...prev, 'nikitavan@Nikitas-MacBook-Pro aide-chat % ' + command]);
     setTerminalContent((prev) => [...prev, response]);
   };
 
-  
+  const handleClick = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
   return (
-    <div 
-      className="w-full h-[600px] bg-[#181818] text-white font-medium font-mono text-sm rounded-lg overflow-hidden flex flex-col"
-    >
-      <div className="bg-[#323233] px-4 py-2 text-[#cccccc] flex items-center justify-between">
+    <StyledTerminalContainer>
+      <TitleBar>
         <span>Terminal</span>
-        <div className="flex space-x-2">
-          <button className="w-3 h-3 rounded-full bg-[#ff5f56]" aria-label="Close terminal"></button>
-          <button className="w-3 h-3 rounded-full bg-[#ffbd2e]" aria-label="Minimize terminal"></button>
-          <button className="w-3 h-3 rounded-full bg-[#27c93f]" aria-label="Maximize terminal"></button>
-        </div>
-      </div>
-      <div className="flex-grow p-4 relative overflow-y-scroll break-words" ref={scrollAreaRef}>
-      {terminalContent.map((content, index) => 
-        <pre key={index} className="whitespace-pre font-mono break-all">{content}</pre>
-      )}
+        <WindowControlsContainer>
+          <button aria-label="Close terminal"></button>
+          <button aria-label="Minimize terminal"></button>
+          <button aria-label="Maximize terminal"></button>
+        </WindowControlsContainer>
+      </TitleBar>
+      <TerminalWindow ref={scrollAreaRef} onClick={handleClick}>
+        {terminalContent.map((content, index) => 
+          <pre key={index}>{content}</pre>
+        )}
           <CustomInput
             onCommandSubmit={handleCommandSubmit}
+            ref={inputRef}
           />
-      </div>
-    </div>
+      </TerminalWindow>
+    </StyledTerminalContainer>
   )
 }
+
+export default Editor;

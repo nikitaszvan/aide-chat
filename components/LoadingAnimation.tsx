@@ -1,5 +1,5 @@
 
-import { FC, useRef } from 'react';
+import { FC } from 'react';
 
 const LoadingAnimation: FC<{className?: string}> = ({className})  => {
 
